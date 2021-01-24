@@ -1,12 +1,14 @@
 const chokidar = require("chokidar")
+const { execSync } = require("child_process")
 
 // One-liner for current directory
 chokidar
   .watch("/docker/mysite/app", {
-    persistent: true,
+    ignored: [/node_modules/, /.git/],
   })
-  .add("new-file", (event, path) => {
-    console.log(event, path)
-    const stdout = execSync("chown -R mysite:mysite /home/mysite/app")
-    console.log(stdout)
+  .on("add", (path) => {
+    console.log(path)
+  })
+  .on("add", (path) => {
+    execSync(`chown -R mysite:mysite ${path}`)
   })
